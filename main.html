@@ -1,13 +1,45 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="main">
 <head lang="en">
     <meta charset="UTF-8">
     <title></title>
-    <script src="http://lib.sinaapp.com/js/jquery/2.0.3/jquery-2.0.3.min.js"></script>
+    <script src="http://lib.sinaapp.com/js/angular.js/angular-1.2.19/angular.min.js"></script>
     <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
-<div id="board">
+<div id="board-c" ng-controller="board as board">
+    <div id="elements">
+        <div class="square">
+            <div class="inner-square" >
+                <div draggable=true class="box" ng-class="board.current_color">
+                </div>
+            </div>
+        </div>
+        <div class="square">
+        </div>
+        <div class="square" ng-repeat="color in board.colors" ng-click="board.current_color=color">
+            <div class="inner-square" ng-switch="square.type">
+                <div draggable=true class="box" ng-class="color">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="board">
+        <div class="square" id="square-{{square.value}}" ng-repeat="square in board.squares">
+            <div class="inner-square" ng-switch="square.type" ng-click="board.square_click(square)">
+                <div ng-switch-when="1" class="box" ng-class='square.color+"-circle"'></div>
+                <div ng-switch-when="2" draggable=true class="box" ng-class="square.color">
+                    <div ng-class="board.dir_css_map[square.dir%4]">
+                    </div>
+                </div>
+                <div ng-switch-when="3" class="box white">
+                    <div ng-class="board.arrow_dir_css_map[square.dir%4]">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 </body>
 <script src="main.js"></script>
