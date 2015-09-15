@@ -4,18 +4,31 @@
 angular.module('main', [])
   .controller('board', function() {
         this.squares=[];
-        this.colors=["red", "pink", "blue", "gray"];
+        this.colors=["red", "pink", "blue", "gray", "black"];
         this.max_type=4;
         this.current_color=this.colors[0];
         this.square_click = function(square){
-            square.color = this.current_color;
-            if(square.type == 2 || square.type == 3){
-                square.dir = (square.dir + 1)% 4;
-                if(square.dir == 0){
-                    square.type = (square.type + 1)% this.max_type;
+            if(this.current_color == "black"){
+                if(square.type != 3){
+                    square.type = 3;
+                    square.dir = 0;
+                }else {
+                    square.type = 3;
+                    square.dir = (square.dir + 1) % 4;
+                    if (square.dir == 0) {
+                        square.type = 0;
+                    }
                 }
             }else{
-                square.type = (square.type + 1) % this.max_type;
+                square.color = this.current_color;
+                if(square.type == 2){
+                    square.dir = (square.dir + 1)% 4;
+                    if(square.dir == 0){
+                        square.type = 0;
+                    }
+                }else{
+                    square.type = (square.type + 1) % this.max_type;
+                }
             }
         };
         var i;
