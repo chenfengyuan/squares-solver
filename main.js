@@ -2,7 +2,7 @@
  * Created by chenfengyuan on 9/15/15.
  */
 angular.module('main', [])
-  .controller('board', function() {
+  .controller('board', function($scope, $http) {
         this.squares=[];
         this.colors=["red", "pink", "blue", "gray", "black"];
         this.max_type=4;
@@ -37,5 +37,7 @@ angular.module('main', [])
         for(i=0;i<100;i++){
             this.squares.push({type:0, dir:0, color:"red"});
         }
-        console.log(this.squares);
+        this.submit= function(){
+            $http.post("http://127.0.0.1:9003/", this.squares);
+        }
     });
