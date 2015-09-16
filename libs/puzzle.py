@@ -3,6 +3,7 @@
 __author__ = 'chenfengyuan'
 
 import json
+import collections
 
 
 class Piece():
@@ -170,12 +171,20 @@ HEIGHT    x 0 1 2
         p.dst_pos = self.dst_pos.copy()
         return p
 
+    def get_moveable_unique_str(self):
+        tmp = []
+        for color in sorted(self.moveable_pos):
+            tmp += [color]
+            tmp += str(self.moveable_pos[color])
+            tmp += str(self.front_board[self.moveable_pos[color]].dir)
+        return ','.join(tmp)
+
 
 class PuzzleSolver():
     def __init__(self, data=None):
         self.id = 0
         self.trace_tree = {}
-        self.queue = []
+        self.queue = collections.deque()
         self.unique = set()
 
         if data:
@@ -200,19 +209,19 @@ class PuzzleSolver():
 
     def solve(self):
         while self.queue:
-            d = self.queue.pop()
+            d = self.queue.popleft()
             puzzle = d["data"]
             assert isinstance(puzzle, Puzzle)
-            tmp = str(puzzle.moveable_pos)
-            if tmp in self.unique:
-                continue
-            else:
-                pass
-                self.unique.add(tmp)
             for color in puzzle.moveable_pos:
                 if puzzle.can_move(color):
                     new_puzzle = puzzle.copy()
                     new_puzzle.move(color)
+
+                    tmp = new_puzzle.get_moveable_unique_str()
+                    if tmp in self.unique:
+                        continue
+                    else:
+                        self.unique.add(tmp)
 
                     if new_puzzle.is_finish():
                         colors = self.trace(d["id"])
