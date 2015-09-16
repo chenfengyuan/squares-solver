@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 # coding=utf-8
-__author__ = 'chenfengyuan'
 
 import json
 import collections
+import random
+import time
+__author__ = 'chenfengyuan'
 
 
-class Piece():
+class Piece:
     def __init__(self, type_=0, dir_=0, color=""):
         self.type = type_
         self.dir = dir_
@@ -49,7 +51,7 @@ class Piece():
         return "Piece(type_=%s,dir_=%s,color=%s)" % (self.type, self.dir, self.color)
 
 
-class Puzzle():
+class Puzzle:
     """
 WIDTH       y ---->
 HEIGHT    x 0 1 2
@@ -71,12 +73,16 @@ HEIGHT    x 0 1 2
         """:type : dict[str, int]"""
         self.dst_pos = {}
         """:type : dict[str, int]"""
-
+        p = Piece()
         for i in range(self.SIZE):
-            self.back_board.append(Piece())
-            self.front_board.append(Piece())
+            self.back_board.append(p)
+            self.front_board.append(p)
 
         if data:
+            self.min_x = self.HEIGHT
+            self.max_x = 0
+            self.min_y = self.WIDTH
+            self.max_y = 0
             data = json.loads(data)
             assert len(data) == self.SIZE
             for i in range(self.SIZE):
@@ -93,6 +99,12 @@ HEIGHT    x 0 1 2
                     self.back_board[i] = p
                     if p.is_dest():
                         self.dst_pos[p.color] = i
+                if not p.is_empty():
+                    x, y = self.get_x_y(i)
+                    self.min_x = min(self.min_x, x)
+                    self.max_x = max(self.max_x, x)
+                    self.min_y = min(self.min_y, y)
+                    self.max_y = max(self.max_y, y)
 
     @classmethod
     def get_x_y(cls, pos):
@@ -159,11 +171,17 @@ HEIGHT    x 0 1 2
                 return False
         return True
 
+    def get_score(self):
+        rv = 0
+        for k, v in self.moveable_pos.items():
+            assert k in self.dst_pos
+            if self.dst_pos[k] == v:
+                rv += 1
+        return rv
+
     def copy(self):
         p = Puzzle()
-        for i, x in enumerate(self.back_board):
-            assert isinstance(x, Piece)
-            p.back_board[i] = x.copy()
+        p.back_board = self.back_board
         for i, x in enumerate(self.front_board):
             assert isinstance(x, Piece)
             p.front_board[i] = x.copy()
@@ -175,12 +193,12 @@ HEIGHT    x 0 1 2
         tmp = []
         for color in sorted(self.moveable_pos):
             tmp += [color]
-            tmp += str(self.moveable_pos[color])
-            tmp += str(self.front_board[self.moveable_pos[color]].dir)
+            tmp += [str(self.moveable_pos[color])]
+            tmp += [str(self.front_board[self.moveable_pos[color]].dir)]
         return ','.join(tmp)
 
 
-class PuzzleSolver():
+class PuzzleSolver:
     def __init__(self, data=None):
         self.id = 0
         self.trace_tree = {}
@@ -192,7 +210,8 @@ class PuzzleSolver():
             d = {"parent_id": None,
                  "id": self.get_id_with_inc(),
                  "data": p,
-                 "color": None}
+                 "color": None,
+                 "depth": 0}
             self.queue.append(d)
             self.trace_tree[d["id"]] = d
 
@@ -207,15 +226,27 @@ class PuzzleSolver():
         rv.reverse()
         return rv
 
-    def solve(self):
+    def solve(self, max_depth=15):
+        total = 0
+        last_time = time.time()
         while self.queue:
             d = self.queue.popleft()
+            if time.time() - last_time > 1:
+                last_time = time.time()
+                print(total)
             puzzle = d["data"]
             assert isinstance(puzzle, Puzzle)
-            for color in puzzle.moveable_pos:
+            if d["depth"] // max_depth > puzzle.get_score():
+                continue
+            colors = list(puzzle.moveable_pos)
+            random.shuffle(colors)
+            for color in colors:
                 if puzzle.can_move(color):
                     new_puzzle = puzzle.copy()
                     new_puzzle.move(color)
+                    if not new_puzzle.can_move(color):
+                        continue
+                    total += 1
 
                     tmp = new_puzzle.get_moveable_unique_str()
                     if tmp in self.unique:
@@ -234,6 +265,7 @@ class PuzzleSolver():
                             "id": new_id,
                             "data": new_puzzle,
                             "color": color,
+                            "depth": d["depth"] + 1
                         }
                         self.queue.append(tmp)
                         self.trace_tree[tmp["id"]] = tmp
