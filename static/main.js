@@ -4,9 +4,10 @@
 angular.module('main', [])
   .controller('board', function($scope, $http) {
         this.squares=[];
-        this.colors=["red", "pink", "blue", "gray", "black"];
+        this.colors=["red", "pink", "blue", "green", "gray", "black"];
         this.max_type=4;
         this.current_color=this.colors[0];
+        this.result_colors = [];
         this.square_click = function(square){
             if(this.current_color == "black"){
                 if(square.type != 3){
@@ -38,6 +39,12 @@ angular.module('main', [])
             this.squares.push({type:0, dir:0, color:"red"});
         }
         this.submit= function(){
-            $http.post("http://127.0.0.1:9003/", this.squares);
+            this.result_colors = ["black"];
+            var current_scope = this;
+            $http.post("http://127.0.0.1:8888/api/puzzle", this.squares).then(
+                function(resp){
+                    current_scope.result_colors = resp.data;
+                }
+            )
         }
     });

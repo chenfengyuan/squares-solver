@@ -3,14 +3,21 @@
     height: 500px;
     background-color: ghostwhite;
     position:relative;
-    margin:auto;
+    margin: 0 0 20px 32%;
+    float:left;
+}
+#result-board{
+    width: 250px;
+    height: 500px;
+    background-color: ghostwhite;
+    float:right;
+    margin: 0 10% 0 0;
 }
 #elements{
     width: 500px;
     height: 100px;
     background-color: ghostwhite;
-    position:relative;
-    margin:10px auto 10px auto;
+    margin:10px 0 10px 32%;
 }
 body{
     background-color: white;
@@ -125,6 +132,12 @@ body{
 }
 .blue-circle{
     background-image: radial-gradient(circle at 50% 50% , cornflowerblue 50%, ghostwhite 0%, ghostwhite 0%);
+}
+.green{
+    background-color: lightgreen;
+}
+.green-circle{
+    background-image: radial-gradient(circle at 50% 50% , lightgreen 50%, ghostwhite 0%, ghostwhite 0%);
 }
 .pink{
     background-color: darkmagenta;
