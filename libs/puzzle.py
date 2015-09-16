@@ -105,24 +105,25 @@ HEIGHT    x 0 1 2
                     self.max_x = max(self.max_x, x)
                     self.min_y = min(self.min_y, y)
                     self.max_y = max(self.max_y, y)
+            self.min_x -= 1
+            self.max_x += 1
+            self.min_y -= 1
+            self.max_y += 1
 
     @classmethod
     def get_x_y(cls, pos):
         x = pos // cls.WIDTH
         y = pos % cls.WIDTH
-        assert cls.on_board(x, y)
         return x, y
 
     @classmethod
     def get_pos(cls, x, y):
-        assert cls.on_board(x, y)
         return x * cls.WIDTH + y
 
-    @classmethod
-    def on_board(cls, x, y):
-        if not (0 <= x < cls.HEIGHT):
+    def on_board(self, x, y):
+        if not (self.min_x <= x <= self.max_x):
             return False
-        if not (0 <= y < cls.WIDTH):
+        if not (self.min_y <= y <= self.max_y):
             return False
         return True
 
@@ -187,6 +188,10 @@ HEIGHT    x 0 1 2
             p.front_board[i] = x.copy()
         p.moveable_pos = self.moveable_pos.copy()
         p.dst_pos = self.dst_pos.copy()
+        p.min_x = self.min_x
+        p.max_x = self.max_x
+        p.min_y = self.min_y
+        p.max_y = self.max_y
         return p
 
     def get_moveable_unique_str(self):
