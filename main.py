@@ -56,16 +56,18 @@ class PuzzleHandler(tornado.web.RequestHandler):
         f.set_result(json.loads(data))
 
 
-def in_app_solver(data):
+def in_app_solver(data, with_depth_limit):
     solver = puzzle.PuzzleSolver(data)
-    return EXECUTOR.submit(solver.solve)
+    return EXECUTOR.submit(solver.solve, with_depth_limit)
 
 
 @tornado.gen.coroutine
 def in_app_worker():
     while True:
         d = yield PUZZLE_QUEUES.get()
-        ans = yield in_app_solver(d["data"])
+        ans = yield in_app_solver(d["data"], True)
+        if not ans:
+            ans = yield in_app_solver(d["data"], False)
         d["f"].set_result(ans)
 
 

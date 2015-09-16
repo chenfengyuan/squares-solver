@@ -13,7 +13,10 @@ def main():
         resp = session.get("http://127.0.0.1:8888/api/puzzle")
         data = json.loads(resp.content.decode('utf-8'))
         solver = puzzle.PuzzleSolver(data["data"])
-        tmp = solver.solve()
+        tmp = solver.solve(True)
+        if not tmp:
+            solver = puzzle.PuzzleSolver(data["data"])
+            tmp = solver.solve()
         data["data"] = json.dumps(tmp)
         requests.put("http://127.0.0.1:8888/api/puzzle", data=data)
 

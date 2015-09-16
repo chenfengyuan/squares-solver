@@ -231,7 +231,7 @@ class PuzzleSolver:
         rv.reverse()
         return rv
 
-    def solve(self):
+    def solve(self, with_depth_limit=False):
         total = 0
         last_time = time.time()
         while self.queue:
@@ -241,12 +241,13 @@ class PuzzleSolver:
                 print(total)
             puzzle = d["data"]
             assert isinstance(puzzle, Puzzle)
-            if d["depth"] == 5:
-                if puzzle.get_score() == 0:
-                    continue
-            else:
-                if d["depth"] // 8 > puzzle.get_score():
-                    continue
+            if with_depth_limit:
+                if d["depth"] == 5:
+                    if puzzle.get_score() == 0:
+                        continue
+                elif d["depth"] > 5:
+                    if d["depth"] // 8 > puzzle.get_score():
+                        continue
             colors = list(puzzle.moveable_pos)
             random.shuffle(colors)
             for color in colors:
