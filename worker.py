@@ -11,7 +11,6 @@ def main():
     session = requests.Session()
     while True:
         resp = session.get("http://127.0.0.1:8888/api/puzzle")
-        print(resp.content)
         data = json.loads(resp.content.decode('utf-8'))
         solver = puzzle.PuzzleSolver(data["data"])
         data["data"] = json.dumps(solver.solve())

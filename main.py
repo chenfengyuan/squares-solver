@@ -2,6 +2,7 @@
 # coding=utf-8
 import logging
 import json
+from concurrent.futures import ProcessPoolExecutor
 
 import tornado.web
 import tornado.ioloop
@@ -9,13 +10,16 @@ import tornado.httputil
 import tornado.log
 import tornado.queues
 import tornado.gen
+import tornado.concurrent
 
 from libs import puzzle
+
 __author__ = 'chenfengyuan'
 
 PUZZLE_QUEUES = tornado.queues.Queue()
 TASKS = {}
 COUNTER = 0
+EXECUTOR = ProcessPoolExecutor()
 
 
 class PuzzleHandler(tornado.web.RequestHandler):
@@ -52,6 +56,19 @@ class PuzzleHandler(tornado.web.RequestHandler):
         f.set_result(json.loads(data))
 
 
+def in_app_solver(data):
+    solver = puzzle.PuzzleSolver(data)
+    return EXECUTOR.submit(solver.solve)
+
+
+@tornado.gen.coroutine
+def in_app_worker():
+    while True:
+        d = yield PUZZLE_QUEUES.get()
+        ans = yield in_app_solver(d["data"])
+        d["f"].set_result(ans)
+
+
 def main():
     ioloop = tornado.ioloop.IOLoop.current()
     tornado.log.enable_pretty_logging()
@@ -63,6 +80,8 @@ def main():
         ]
     )
     app.listen(8888)
+    ioloop.add_callback(in_app_worker)
+    ioloop.add_callback(in_app_worker)
     ioloop.start()
 
 
