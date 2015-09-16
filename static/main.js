@@ -38,13 +38,21 @@ angular.module('main', [])
         for(i=0;i<100;i++){
             this.squares.push({type:0, dir:0, color:"red"});
         }
-        this.submit= function(){
-            this.result_colors = ["black"];
+        this.submit = function(){
+            this.loading = true;
             var current_scope = this;
             $http.post("http://127.0.0.1:8888/api/puzzle", this.squares).then(
                 function(resp){
+                    current_scope.loading=false;
                     current_scope.result_colors = resp.data;
                 }
             )
+        };
+        this.clear = function(){
+            this.loading = false;
+            this.squares = [];
+            for(var i=0;i<100;i++){
+            this.squares.push({type:0, dir:0, color:"red"});
+        }
         }
     });

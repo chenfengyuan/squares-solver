@@ -44,7 +44,10 @@
         </div>
     </div>
     <div id="result-board">
-        <div class="square" ng-repeat="color in board.result_colors track by $index">
+        <div ng-show="board.loading">
+            <img src="loading.gif">
+        </div>
+        <div ng-show="!board.loading" class="square" ng-repeat="color in board.result_colors track by $index">
             <div class="inner-square" ng-switch="square.type">
                 <div class="box" ng-class="color">
                 </div>
@@ -52,7 +55,8 @@
         </div>
     </div>
     <div style="float:left;width:100%;">
-        <div style="margin:auto;width:80px;">
+        <div style="margin:auto;width:120px;">
+            <button name="clear" ng-click="board.clear()" class="btn btn-success">清空</button>
             <button name="submit" ng-click="board.submit()" class="btn btn-success">求解</button>
         </div>
     </div>
