@@ -26,6 +26,9 @@ class Piece:
     def is_arrow(self):
         return self.type == 3
 
+    def is_teleport_hole(self):
+        return self.type == 4
+
     def get_delta(self):
         assert self.is_moveable(), "%s is not moveable" % self
         delta_x = 0
@@ -73,6 +76,8 @@ HEIGHT    x 0 1 2
         """:type : dict[str, int]"""
         self.dst_pos = {}
         """:type : dict[str, int]"""
+        self.hole_pos_pair = {}
+        """:type : dict[int, int]"""
         p = Piece()
         for i in range(self.SIZE):
             self.back_board.append(p)
@@ -84,6 +89,7 @@ HEIGHT    x 0 1 2
             self.min_y = self.WIDTH
             self.max_y = 0
             data = json.loads(data)
+            holes = set()
             assert len(data) == self.SIZE
             for i in range(self.SIZE):
                 p = Piece()
@@ -99,16 +105,28 @@ HEIGHT    x 0 1 2
                     self.back_board[i] = p
                     if p.is_dest():
                         self.dst_pos[p.color] = i
+                    elif p.is_teleport_hole():
+                        holes.add(i)
                 if not p.is_empty():
                     x, y = self.get_x_y(i)
                     self.min_x = min(self.min_x, x)
                     self.max_x = max(self.max_x, x)
                     self.min_y = min(self.min_y, y)
                     self.max_y = max(self.max_y, y)
-            self.min_x -= 1
-            self.max_x += 1
-            self.min_y -= 1
-            self.max_y += 1
+            self.min_x -= 2
+            self.max_x += 2
+            self.min_y -= 2
+            self.max_y += 2
+            self.min_x = max(0, self.min_x)
+            self.max_x = min(self.HEIGHT - 1, self.max_x)
+            self.min_y = max(0, self.min_y)
+            self.max_y = max(self.WIDTH - 1, self.max_y)
+
+            assert len(holes) == 2 or len(holes) == 0
+            if holes:
+                holes = list(holes)
+                self.hole_pos_pair[holes[0]] = holes[1]
+                self.hole_pos_pair[holes[1]] = holes[0]
 
     @classmethod
     def get_x_y(cls, pos):
@@ -138,6 +156,10 @@ HEIGHT    x 0 1 2
             if not self.on_board(x, y):
                 break
             new_pos = self.get_pos(x, y)
+            if self.back_board[new_pos].is_teleport_hole():
+                new_pos = self.hole_pos_pair[new_pos]
+                x, y = self.get_x_y(new_pos)
+                continue
             if not self.front_board[new_pos].is_moveable():
                 return True
 
@@ -152,6 +174,11 @@ HEIGHT    x 0 1 2
             y += delta_y
             assert self.on_board(x, y)
             dst_pos = self.get_pos(x, y)
+            if self.back_board[dst_pos].is_teleport_hole():
+                new_pos = self.hole_pos_pair[dst_pos]
+                x, y = self.get_x_y(new_pos)
+                continue
+
             dst_piece = self.front_board[dst_pos]
 
             self.moveable_pos[p.color] = dst_pos
@@ -192,6 +219,7 @@ HEIGHT    x 0 1 2
         p.max_x = self.max_x
         p.min_y = self.min_y
         p.max_y = self.max_y
+        p.hole_pos_pair = self.hole_pos_pair
         return p
 
     def get_moveable_unique_str(self):

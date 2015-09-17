@@ -4,19 +4,22 @@
 angular.module('main', [])
   .controller('board', function($scope, $http) {
         this.squares=[];
-        this.colors=["red", "pink", "blue", "green", "gray", "black"];
+        this.colors=["red", "pink", "blue", "yellow", "green", "gray", "dark", "black"];
         this.max_type=4;
         this.current_color=this.colors[0];
         this.result_colors = [];
         this.square_click = function(square){
             if(this.current_color == "black"){
-                if(square.type != 3){
+                if(square.type != 3 && square.type != 4){
                     square.type = 3;
                     square.dir = 0;
                 }else {
-                    square.type = 3;
-                    square.dir = (square.dir + 1) % 4;
-                    if (square.dir == 0) {
+                    if(square.type == 3){
+                        square.dir = (square.dir + 1) % 4;
+                        if (square.dir == 0) {
+                            square.type = 4;
+                        }
+                    }else{
                         square.type = 0;
                     }
                 }
@@ -51,6 +54,7 @@ angular.module('main', [])
         this.clear = function(){
             this.loading = false;
             this.squares = [];
+            this.result_colors = [];
             for(var i=0;i<100;i++){
             this.squares.push({type:0, dir:0, color:"red"});
         }

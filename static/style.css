@@ -133,6 +133,12 @@ body{
 .blue-circle{
     background-image: radial-gradient(circle at 50% 50% , cornflowerblue 50%, ghostwhite 0%, ghostwhite 0%);
 }
+.yellow{
+    background-color: gold;
+}
+.yellow-circle{
+    background-image: radial-gradient(circle at 50% 50% , gold 50%, ghostwhite 0%, ghostwhite 0%);
+}
 .green{
     background-color: lightgreen;
 }
@@ -145,6 +151,15 @@ body{
 .pink-circle{
     background-image: radial-gradient(circle at 50% 50% , darkmagenta 50%, ghostwhite 0%, ghostwhite 0%);
 }
+.dark{
+    background-color: indigo;
+}
+.dark-circle{
+    background-image: radial-gradient(circle at 50% 50% , indigo 50%, ghostwhite 0%, ghostwhite 0%);
+}
 .black{
     background-color: black;
+}
+.black-circle{
+    background-image: radial-gradient(circle at 50% 50% , black 50%, ghostwhite 0%, ghostwhite 0%);
 }
